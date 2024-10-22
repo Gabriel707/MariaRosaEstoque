@@ -45,4 +45,10 @@ def autenticar():
          flash('Falha no login, por favor verifique seu login e/ou senha.')
          return redirect('/login')
 
+@app.route('/logout')
+def logout():
+    session['usuario_logado'] = None
+    flash('Logout efetuado com sucesso!')
+    return redirect('/')
+
 app.run(debug=True)
