@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect, session, flash
 
 class Macaquinho:
     def __init__(self, nome, cor, valor):
@@ -12,6 +12,7 @@ macaquinho3 = Macaquinho('Macaquinho Ursinho Polar', 'Azul Estampado', 44.99)
 lista = [macaquinho1, macaquinho2, macaquinho3]
 
 app= Flask(__name__)
+app.secret_key = 'rosemary'
 
 @app.route('/')
 def index():
@@ -29,5 +30,19 @@ def criar():
     macaquinho4 = Macaquinho(nome, cor, valor)
     lista.append(macaquinho4)
     return redirect('/')
+
+@app.route('/login')
+def login():
+    return render_template('login.html')
+
+@app.route('/autenticar', methods=['POST',])
+def autenticar():
+     if 'Maria@lafayette33*' == request.form['senha']:
+         session['usuario_logado'] = request.form['usuario']
+         flash(session['usuario_logado'] + ' logado com sucesso!')
+         return redirect('/')
+     else:
+         flash('Falha no login, por favor verifique seu login e/ou senha.')
+         return redirect('/login')
 
 app.run(debug=True)
