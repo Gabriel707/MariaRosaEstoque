@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, session, flash
+from flask import Flask, render_template, request, redirect, session, flash, url_for
 
 class Macaquinho:
     def __init__(self, nome, cor, valor):
@@ -20,6 +20,8 @@ def index():
 
 @app.route('/novoproduto')
 def novoproduto():
+    if 'usuario_logado' not in session or session['usuario_logado'] == None:
+        return redirect('/login?proxima=novoproduto')
     return render_template('novoproduto.html', titulo='Novo Produto')
 
 @app.route('/criar', methods=['POST',])
@@ -33,14 +35,16 @@ def criar():
 
 @app.route('/login')
 def login():
-    return render_template('login.html')
+    proxima = request.args.get('proxima')
+    return render_template('login.html', proxima=proxima)
 
 @app.route('/autenticar', methods=['POST',])
 def autenticar():
      if 'Maria@lafayette33*' == request.form['senha']:
          session['usuario_logado'] = request.form['usuario']
          flash(session['usuario_logado'] + ' logado com sucesso!')
-         return redirect('/')
+         proxima_pagina = request.form['proxima']
+         return redirect('/{}'.format(proxima_pagina))
      else:
          flash('Falha no login, por favor verifique seu login e/ou senha.')
          return redirect('/login')
