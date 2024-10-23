@@ -21,7 +21,7 @@ def index():
 @app.route('/novoproduto')
 def novoproduto():
     if 'usuario_logado' not in session or session['usuario_logado'] == None:
-        return redirect('/login?proxima=novoproduto')
+        return redirect(url_for('login', proxima=url_for('novoproduto')))
     return render_template('novoproduto.html', titulo='Novo Produto')
 
 @app.route('/criar', methods=['POST',])
@@ -31,7 +31,7 @@ def criar():
     valor = request.form['valor']
     macaquinho4 = Macaquinho(nome, cor, valor)
     lista.append(macaquinho4)
-    return redirect('/')
+    return redirect(url_for('index'))
 
 @app.route('/login')
 def login():
@@ -44,15 +44,15 @@ def autenticar():
          session['usuario_logado'] = request.form['usuario']
          flash(session['usuario_logado'] + ' logado com sucesso!')
          proxima_pagina = request.form['proxima']
-         return redirect('/{}'.format(proxima_pagina))
+         return redirect(proxima_pagina)
      else:
          flash('Falha no login, por favor verifique seu login e/ou senha.')
-         return redirect('/login')
+         return redirect(url_for('login'))
 
 @app.route('/logout')
 def logout():
     session['usuario_logado'] = None
     flash('Logout efetuado com sucesso!')
-    return redirect('/')
+    return redirect(url_for('index'))
 
 app.run(debug=True)
