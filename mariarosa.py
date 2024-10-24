@@ -11,6 +11,16 @@ macaquinho2 = Macaquinho('Macaquinho Bambi', "Cinza estampado", 44.99)
 macaquinho3 = Macaquinho('Macaquinho Ursinho Polar', 'Azul Estampado', 44.99)
 lista = [macaquinho1, macaquinho2, macaquinho3]
 
+class Usuario:
+    def __init__(self, nome, nickname, senha):
+        self.nome = nome
+        self.nickname = nickname
+        self.senha = senha
+
+usuario1 = Usuario("Gabriel Santana", "gsaraujo", "admin123*")
+usuario2 = Usuario("Andre Santana", "andaraujo", "lafayette33#")
+usuario3 = Usuario("Natalie Araujo", "nsaraujo", "jadeGOD7@")
+
 app= Flask(__name__)
 app.secret_key = 'rosemary'
 
