@@ -4,7 +4,7 @@ class Macaquinho:
     def __init__(self, nome, cor, valor):
         self.nome = nome
         self.cor = cor
-        self.preco = valor
+        self.valor = valor
 
 macaquinho1 = Macaquinho('Macaquinho Raposa', 'Amarelo', 44.99)
 macaquinho2 = Macaquinho('Macaquinho Bambi', "Cinza estampado", 44.99)
@@ -20,6 +20,10 @@ class Usuario:
 usuario1 = Usuario("Gabriel Santana", "gsaraujo", "admin123*")
 usuario2 = Usuario("Andre Santana", "andaraujo", "lafayette33#")
 usuario3 = Usuario("Natalie Araujo", "nsaraujo", "jadeGOD7@")
+
+usuarios = { usuario1.nickname : usuario1,
+             usuario2.nickname : usuario2,
+             usuario3.nickname : usuario3 }
 
 app= Flask(__name__)
 app.secret_key = 'rosemary'
@@ -50,12 +54,14 @@ def login():
 
 @app.route('/autenticar', methods=['POST',])
 def autenticar():
-     if 'Maria@lafayette33*' == request.form['senha']:
-         session['usuario_logado'] = request.form['usuario']
-         flash(session['usuario_logado'] + ' logado com sucesso!')
-         proxima_pagina = request.form['proxima']
-         return redirect(proxima_pagina)
-     else:
+    if request.form['usuario'] in usuarios:
+        usuario = usuarios[request.form['usuario']]
+        if request.form['senha'] == usuario.senha:
+            session['usuario_logado'] = usuario.nickname
+            flash(usuario.nickname + ' logado com sucesso!')
+            proxima_pagina = request.form['proxima']
+            return redirect(proxima_pagina)
+    else:
          flash('Falha no login, por favor verifique seu login e/ou senha.')
          return redirect(url_for('login'))
 
