@@ -1,35 +1,41 @@
 from flask import Flask, render_template, request, redirect, session, flash, url_for
+from flask_sqlalchemy import SQLAlchemy
 
-class Macaquinho:
-    def __init__(self, nome, cor, valor):
-        self.nome = nome
-        self.cor = cor
-        self.valor = valor
-
-macaquinho1 = Macaquinho('Macaquinho Raposa', 'Amarelo', 44.99)
-macaquinho2 = Macaquinho('Macaquinho Bambi', "Cinza estampado", 44.99)
-macaquinho3 = Macaquinho('Macaquinho Ursinho Polar', 'Azul Estampado', 44.99)
-lista = [macaquinho1, macaquinho2, macaquinho3]
-
-class Usuario:
-    def __init__(self, nome, nickname, senha):
-        self.nome = nome
-        self.nickname = nickname
-        self.senha = senha
-
-usuario1 = Usuario("Gabriel Santana", "gsaraujo", "admin123*")
-usuario2 = Usuario("Andre Santana", "andaraujo", "lafayette33#")
-usuario3 = Usuario("Natalie Araujo", "nsaraujo", "jadeGOD7@")
-
-usuarios = { usuario1.nickname : usuario1,
-             usuario2.nickname : usuario2,
-             usuario3.nickname : usuario3 }
-
-app= Flask(__name__)
+app = Flask(__name__)
 app.secret_key = 'rosemary'
+
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SQLALCHEMY_DATABASE_URI'] = \
+    '{SGBD}://{usuario}:{senha}@{servidor}/{database}'.format(
+        SGBD = 'mysql+mysqlconnector',
+        usuario = 'root',
+        senha = 'admin123*',
+        servidor = 'localhost',
+        database = 'mariarosa'
+    )
+
+db = SQLAlchemy(app)
+
+class Macaquinhos(db.Model):
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    nome = db.Column(db.String(50), nullable=False)
+    cor = db.Column(db.String(30), nullable=False)
+    valor = db.Column(db.Numeric(10,2), nullable=False)
+
+    def __repr__(self):
+        return '<Name %r>' % self.name
+
+class Usuarios(db.Model):
+    nickname = db.Column(db.String(15), primary_key=True)
+    nome = db.Column(db.String(20), nullable=False)
+    senha = db.Column(db.String(100), nullable=False)
+
+    def __repr__(self):
+        return '<Name %r>' % self.name
 
 @app.route('/')
 def index():
+    lista = Macaquinhos.query.order_by(Macaquinhos.id)
     return render_template('lista.html', titulo='Maria Rosa Estoque', produtos=lista)
 
 @app.route('/novoproduto')
@@ -43,8 +49,17 @@ def criar():
     nome = request.form['nome']
     cor = request.form['cor']
     valor = request.form['valor']
-    macaquinho4 = Macaquinho(nome, cor, valor)
-    lista.append(macaquinho4)
+
+    macaquinho = Macaquinhos.query.filter_by(nome=nome).first()
+
+    if macaquinho:
+        flash('Produto já cadastrado.')
+        return redirect(url_for('index'))
+
+    novo_macaquinho = Macaquinhos(nome=nome, cor=cor, valor=valor)
+    db.session.add(novo_macaquinho)
+    db.session.commit()
+
     return redirect(url_for('index'))
 
 @app.route('/login')
@@ -54,8 +69,8 @@ def login():
 
 @app.route('/autenticar', methods=['POST',])
 def autenticar():
-    if request.form['usuario'] in usuarios:
-        usuario = usuarios[request.form['usuario']]
+    usuario = Usuarios.query.filter_by(nickname=request.form['usuario']).first()
+    if usuario:
         if request.form['senha'] == usuario.senha:
             session['usuario_logado'] = usuario.nickname
             flash(usuario.nickname + ' logado com sucesso!')
