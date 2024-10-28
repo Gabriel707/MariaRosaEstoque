@@ -1,3 +1,4 @@
+import os
 
 SECRET_KEY = 'rosemary'
 
@@ -11,3 +12,5 @@ SQLALCHEMY_DATABASE_URI = \
         servidor = 'localhost',
         database = 'mariarosa'
     )
+
+UPLOAD_PATH = os.path.dirname(os.path.abspath(__file__)) + '/uploads'
