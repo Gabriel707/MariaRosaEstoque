@@ -40,7 +40,27 @@ def editar(id):
 
 @app.route('/atualizar', methods=['POST',])
 def atualizar():
-    pass
+    macaquinho = Macaquinhos.query.filter_by(id=request.form['id']).first()
+    macaquinho.nome = request.form['nome']
+    macaquinho.cor = request.form['cor']
+    macaquinho.valor = request.form['valor']
+
+    db.session.add(macaquinho)
+    db.session.commit()
+
+    return redirect(url_for('index'))
+
+@app.route('/deletar/<int:id>')
+def deletar(id):
+    if 'usuario_logado' not in session or session['usuario_logado'] == None:
+        return redirect(url_for('login'))
+
+    Macaquinhos.query.filter_by(id=id).delete()
+    db.session.commit()
+    flash('Produto deletado com sucesso!')
+
+    return redirect(url_for('index'))
+
 
 @app.route('/login')
 def login():

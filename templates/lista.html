@@ -15,7 +15,10 @@
                <td>{{ produto.nome }}</td>
                <td>{{ produto.cor }}</td>
                <td>{{ produto.valor }}</td>
-               <td><a href="{{ url_for('editar', id=produto.id) }}">Editar</a></td>
+               <td>
+                   <a href="{{ url_for('editar', id=produto.id) }}">Editar</a>
+                   <a href="{{ url_for('deletar', id=produto.id) }}">Deletar</a>
+               </td>
            </tr>
             {% endfor %}
 
