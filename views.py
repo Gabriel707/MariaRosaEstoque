@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, session, flash, url_for, send_from_directory
 from mariarosa import app, db
 from models import Macaquinhos, Usuarios
+from helpers import pega_image
 
 @app.route('/')
 def index():
@@ -40,7 +41,8 @@ def editar(id):
     if 'usuario_logado' not in session or session['usuario_logado'] == None:
         return redirect(url_for('login', proxima=url_for('editar')))
     macaquinho = Macaquinhos.query.filter_by(id=id).first()
-    return render_template('editar.html', titulo='Editando Produto', macaquinho=macaquinho)
+    foto_produto = pega_image(id)
+    return render_template('editar.html', titulo='Editando Produto', macaquinho=macaquinho, foto_produto=foto_produto)
 
 @app.route('/atualizar', methods=['POST',])
 def atualizar():
@@ -51,6 +53,10 @@ def atualizar():
 
     db.session.add(macaquinho)
     db.session.commit()
+
+    arquivo = request.files['arquivo']
+    upload_path = app.config['UPLOAD_PATH']
+    arquivo.save(f'{upload_path}/foto{macaquinho.id}.jpg')
 
     return redirect(url_for('index'))
 
