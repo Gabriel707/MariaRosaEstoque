@@ -1,7 +1,8 @@
 from flask import Flask, render_template, request, redirect, session, flash, url_for, send_from_directory
 from mariarosa import app, db
 from models import Macaquinhos, Usuarios
-from helpers import pega_image
+from helpers import pega_image, deleta_arquivo
+import time
 
 @app.route('/')
 def index():
@@ -32,7 +33,8 @@ def criar():
 
     arquivo = request.files['arquivo']
     upload_path = app.config['UPLOAD_PATH']
-    arquivo.save(f'{upload_path}/foto{novo_macaquinho.id}.jpg')
+    timestamp = time.time()
+    arquivo.save(f'{upload_path}/foto{novo_macaquinho.id}-{timestamp}.jpg')
 
     return redirect(url_for('index'))
 
@@ -56,7 +58,9 @@ def atualizar():
 
     arquivo = request.files['arquivo']
     upload_path = app.config['UPLOAD_PATH']
-    arquivo.save(f'{upload_path}/foto{macaquinho.id}.jpg')
+    timestamp = time.time()
+    deleta_arquivo(macaquinho.id)
+    arquivo.save(f'{upload_path}/foto{macaquinho.id}-{timestamp}.jpg')
 
     return redirect(url_for('index'))
 
