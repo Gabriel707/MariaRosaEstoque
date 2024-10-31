@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, redirect, session, flash, url_for, send_from_directory
 from mariarosa import app, db
 from models import Macaquinhos, Usuarios
-from helpers import pega_image, deleta_arquivo
+from helpers import pega_image, deleta_arquivo, FormularioProduto
 import time
 
 @app.route('/')
@@ -13,13 +13,19 @@ def index():
 def novoproduto():
     if 'usuario_logado' not in session or session['usuario_logado'] == None:
         return redirect(url_for('login', proxima=url_for('novoproduto')))
-    return render_template('novoproduto.html', titulo='Novo Produto')
+    form = FormularioProduto()
+    return render_template('novoproduto.html', titulo='Novo Produto', form=form)
 
 @app.route('/criar', methods=['POST',])
 def criar():
-    nome = request.form['nome']
-    cor = request.form['cor']
-    valor = request.form['valor']
+    form = FormularioProduto(request.form)
+
+    if not form.validate_on_submit():
+        return redirect(url_for('novoproduto'))
+
+    nome = form.nome.data
+    cor = form.cor.data
+    valor = form.valor.data
 
     macaquinho = Macaquinhos.query.filter_by(nome=nome).first()
 
