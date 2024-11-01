@@ -1,7 +1,7 @@
-from flask import Flask, render_template, request, redirect, session, flash, url_for, send_from_directory
+from flask import render_template, request, redirect, session, flash, url_for, send_from_directory
 from mariarosa import app, db
-from models import Macaquinhos, Usuarios
-from helpers import pega_image, deleta_arquivo, FormularioProduto, FormularioUsuario
+from models import Macaquinhos
+from helpers import pega_image, deleta_arquivo, FormularioProduto
 import time
 
 @app.route('/')
@@ -86,33 +86,6 @@ def deletar(id):
     db.session.commit()
     flash('Produto deletado com sucesso!')
 
-    return redirect(url_for('index'))
-
-
-@app.route('/login')
-def login():
-    proxima = request.args.get('proxima')
-    form = FormularioUsuario()
-    return render_template('login.html', proxima=proxima, form=form)
-
-@app.route('/autenticar', methods=['POST',])
-def autenticar():
-    form = FormularioUsuario(request.form)
-    usuario = Usuarios.query.filter_by(nickname=form.nickname.data).first()
-    if usuario:
-        if form.senha.data == usuario.senha:
-            session['usuario_logado'] = usuario.nickname
-            flash(usuario.nickname + ' logado com sucesso!')
-            proxima_pagina = request.form['proxima']
-            return redirect(proxima_pagina)
-    else:
-         flash('Falha no login, por favor verifique seu login e/ou senha.')
-         return redirect(url_for('login'))
-
-@app.route('/logout')
-def logout():
-    session['usuario_logado'] = None
-    flash('Logout efetuado com sucesso!')
     return redirect(url_for('index'))
 
 @app.route('/uploads/<nome_arquivo>')
