@@ -49,24 +49,31 @@ def editar(id):
     if 'usuario_logado' not in session or session['usuario_logado'] == None:
         return redirect(url_for('login', proxima=url_for('editar')))
     macaquinho = Macaquinhos.query.filter_by(id=id).first()
+    form = FormularioProduto()
+    form.nome.data = macaquinho.nome
+    form.cor.data = macaquinho.cor
+    form.valor.data = macaquinho.valor
     foto_produto = pega_image(id)
-    return render_template('editar.html', titulo='Editando Produto', macaquinho=macaquinho, foto_produto=foto_produto)
+    return render_template('editar.html', titulo='Editando Produto', id=id, foto_produto=foto_produto, form=form)
 
 @app.route('/atualizar', methods=['POST',])
 def atualizar():
-    macaquinho = Macaquinhos.query.filter_by(id=request.form['id']).first()
-    macaquinho.nome = request.form['nome']
-    macaquinho.cor = request.form['cor']
-    macaquinho.valor = request.form['valor']
+    form = FormularioProduto(request.form)
 
-    db.session.add(macaquinho)
-    db.session.commit()
+    if form.validate_on_submit():
+        macaquinho = Macaquinhos.query.filter_by(id=request.form['id']).first()
+        macaquinho.nome = form.nome.data
+        macaquinho.cor = form.cor.data
+        macaquinho.valor = form.valor.data
 
-    arquivo = request.files['arquivo']
-    upload_path = app.config['UPLOAD_PATH']
-    timestamp = time.time()
-    deleta_arquivo(macaquinho.id)
-    arquivo.save(f'{upload_path}/foto{macaquinho.id}-{timestamp}.jpg')
+        db.session.add(macaquinho)
+        db.session.commit()
+
+        arquivo = request.files['arquivo']
+        upload_path = app.config['UPLOAD_PATH']
+        timestamp = time.time()
+        deleta_arquivo(macaquinho.id)
+        arquivo.save(f'{upload_path}/foto{macaquinho.id}-{timestamp}.jpg')
 
     return redirect(url_for('index'))
 

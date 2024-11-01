@@ -13,6 +13,7 @@
        </figure>
 
         <fieldset>
+            {{ form.csrf_token() }}
           <div class="form-group">
               {{ form.nome.label(class="form-label") }}
               {{ form.nome(class="form-control") }}
@@ -27,8 +28,8 @@
           </div>
           <div>
               {{ form.salvar(class="btn-primary") }}
+              <a class="btn btn-danger" href="{{ url_for('index') }}">Voltar</a>
           </div>
-          <a class="btn btn-danger" href="{{ url_for('index') }}">Voltar</a>
         </fieldset>
       </form>
 {% endblock %}
