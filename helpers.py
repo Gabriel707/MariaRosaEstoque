@@ -1,7 +1,7 @@
 import os
 from mariarosa import app
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, validators, DecimalField
+from wtforms import StringField, SubmitField, PasswordField, validators, DecimalField
 
 class FormularioProduto(FlaskForm):
     nome = StringField('Produto', [validators.data_required(), validators.Length(min=1, max=50)])
@@ -10,6 +10,11 @@ class FormularioProduto(FlaskForm):
                                   validators.NumberRange(min=1, max=1000, message="O valor deve estar entre 0 e 1000")
                                   ])
     salvar = SubmitField('Salvar')
+
+class FormularioUsuario(FlaskForm):
+    nickname = StringField('Usuário', [validators.data_required(), validators.Length(min=1, max=15)])
+    senha = PasswordField('Senha', [validators.data_required(), validators.Length(min=1, max=100)])
+    login = SubmitField('Login')
 
 def pega_image(id):
     for nome_arquivo in os.listdir(app.config['UPLOAD_PATH']):

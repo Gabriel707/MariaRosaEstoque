@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, redirect, session, flash, url_for, send_from_directory
 from mariarosa import app, db
 from models import Macaquinhos, Usuarios
-from helpers import pega_image, deleta_arquivo, FormularioProduto
+from helpers import pega_image, deleta_arquivo, FormularioProduto, FormularioUsuario
 import time
 
 @app.route('/')
@@ -92,13 +92,15 @@ def deletar(id):
 @app.route('/login')
 def login():
     proxima = request.args.get('proxima')
-    return render_template('login.html', proxima=proxima)
+    form = FormularioUsuario()
+    return render_template('login.html', proxima=proxima, form=form)
 
 @app.route('/autenticar', methods=['POST',])
 def autenticar():
-    usuario = Usuarios.query.filter_by(nickname=request.form['usuario']).first()
+    form = FormularioUsuario(request.form)
+    usuario = Usuarios.query.filter_by(nickname=form.nickname.data).first()
     if usuario:
-        if request.form['senha'] == usuario.senha:
+        if form.senha.data == usuario.senha:
             session['usuario_logado'] = usuario.nickname
             flash(usuario.nickname + ' logado com sucesso!')
             proxima_pagina = request.form['proxima']
